@@ -1,35 +1,38 @@
 import pandas as pd
+from nltk.stem import WordNetLemmatizer
+from nltk.corpus import stopwords
+import re
 
-# Load your skills dataset
-# Replace 'your_dataset.csv' with the actual filename or path
-df = pd.read_csv('your_dataset.csv')
+df = pd.read_csv('F:\shithole\4th year-1st semester\Graduation project\skill2vec_10K.csv')
 
-# Assuming your skills are in a column named 'skills'
-skills_column = 'skills'
+#initialize NLP tools 
+lemmatizer = WordNetLemmatizer()
+stop_words = set(stopwords.words('english'))
 
-# Create a skills dictionary
-skills_dict = {}
+#clean skills ba 
+def clean_skills(skill):
+    #remove special characters
+    skill = re.sub(r'[^a-zA-Z0-9#.\s]', '', skill, flags=re.I)
+    #remove whitespaces
+    skill = re.sub(r'\s+', ' ', skill).strip()
+    #remove stop words
+    skill = ' '.join([word for word in skill.split() if word not in stop_words])
+    #lemmatize: reduce words to their root form
+    #lemma involves understandong the context its more complex than stemming
+    skill = ' '.join([lemmatizer.lemmatize(word) for word in skill.split()])
+    return skill
 
-# Iterate through each row in the dataset
-for index, row in df.iterrows():
-    # Split skills if they are comma-separated or use another delimiter
-    skills_list = row[skills_column].split(',')
+skill_columns = df.columns
 
-    # Add each skill to the dictionary
-    for skill in skills_list:
-        # Remove leading and trailing whitespaces
-        skill = skill.strip()
-        
-        # Check if the skill is already in the dictionary
-        if skill not in skills_dict:
-            # If not, add it with an empty list as the value
-            skills_dict[skill] = []
-        
-        # Append any additional information you have about the skill
-        # For example, you might have a column 'category' in your dataset
-        # skills_dict[skill].append(row['category'])
+skill_dictionary = set()
 
-# Now, skills_dict contains a dictionary where keys are skills, and values are lists of additional information about each skill.
+for column in skill_columns:
+    #drop NAN vallues
+    skills = df[column].dropna().str.lower()
+    skills = skills.apply(clean_skills)
+    skill_dictionary.update(skills)
+
+print(skill_dictionary)
 
 # Example usage:
 # Print information about a specific skill
