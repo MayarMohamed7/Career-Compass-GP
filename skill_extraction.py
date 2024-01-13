@@ -32,13 +32,13 @@ def extract_skills(text):
     doc = nlp(text)
     #need to put skill dictionary insted of this list
     #the skill dictionary that we created
-    skill_df = pd.read_csv('cleaned_skill_dictionary.csv')
+    skill_df = pd.read_csv('skill2vec_50K.csv')
     skill_keywords = pd.Series(skill_df.values.ravel('F')).unique().tolist()
     skills = []
 
     for token in doc:
         if token.text.lower() in skill_keywords or "skill" in token.text.lower() or token.ent_type_ == "SKILL":
-            if token.text.lower() not in ["me", "and", "or", "i", "myself"] and len(token.text) > 1:
+            if token.text.lower() not in ["me", "and", "or", "i", "myself","strong","experience","Excellent"] and len(token.text) > 1:
                 skills.append(token.text)
 
     unique_skills = list(set(skills))
@@ -46,4 +46,4 @@ def extract_skills(text):
 
 user_paragraph = "I have experience in Python and Java, with strong skills in machine learning. Excellent communication and teamwork skills."
 user_skills = extract_skills(user_paragraph)
-print (user_skills)
+print ("Users's extracted skills are: ",user_skills)
