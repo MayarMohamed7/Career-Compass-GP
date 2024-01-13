@@ -31,7 +31,7 @@ def remove_stopwords(text):
 def extract_skills(text):
     doc = nlp(text)
     #need to put skill dictionary insted of this list
-    #the skill 
+    #the skill dictionary that we created
     skill_keywords = ["python", "java", "machine learning", "data analysis", "communication", "teamwork", "problem-solving"] 
     skills = []
 
