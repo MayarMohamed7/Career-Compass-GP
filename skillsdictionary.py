@@ -34,10 +34,4 @@ for column in skill_columns:
 
 print(skill_dictionary)
 
-# Example usage:
-# Print information about a specific skill
-print("Information about 'Python':", skills_dict.get('Python', 'Skill not found'))
-
-# Print all skills and their information
-for skill, info in skills_dict.items():
-    print(f"Skill: {skill}, Information: {info}")
+pd.DataFrame(list(skill_dictionary), columns=['Skills']).to_csv('cleaned_skill_dictionary.csv', index=False)

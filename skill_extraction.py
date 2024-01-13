@@ -32,7 +32,8 @@ def extract_skills(text):
     doc = nlp(text)
     #need to put skill dictionary insted of this list
     #the skill dictionary that we created
-    skill_keywords = ["python", "java", "machine learning", "data analysis", "communication", "teamwork", "problem-solving"] 
+    skill_df = pd.read_csv('cleaned_skill_dictionary.csv')
+    skill_keywords = pd.Series(skill_df.values.ravel('F')).unique().tolist()
     skills = []
 
     for token in doc:
