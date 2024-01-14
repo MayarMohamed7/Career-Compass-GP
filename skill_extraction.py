@@ -12,11 +12,23 @@ nltk.download('stopwords')
 # Load the spaCy English model
 nlp = spacy.load("en_core_web_sm")
 
+# Define the clean_text function for text cleaning
+def clean_text(text):
+    # Your cleaning logic here
+    return text
+
+# Define the remove_stopwords function
+def remove_stopwords(text):
+    stop_words = set(stopwords.words('english'))
+    tokens = word_tokenize(text)
+    filtered_text = ' '.join([word for word in tokens if word.lower() not in stop_words])
+    return filtered_text
+
 # Extract skills from a user's paragraph
 def extract_skills(text):
     doc = nlp(text)
-
-    # Load the skill dictionary
+    #need to put skill dictionary insted of this list
+    #the skill dictionary that we created
     skill_df = pd.read_csv('cleaned_skill_dictionary.csv')
     skill_df = skill_df.applymap(lambda x: str(x) if pd.notnull(x) else '')
     skill_keywords = pd.Series(skill_df.values.ravel('F')).unique().tolist()
@@ -55,7 +67,7 @@ def extract_skills(text):
     unique_skills = list(set(skills))
     return '|'.join(unique_skills)
 
-user_paragraph = "I have experience in Python and Technical Recruitment, with strong skills in asp.net. Excellent communication"
+user_paragraph = "I have experience in Python and Java, with strong skills in machine learning. Excellent communication and teamwork skills."
 user_skills = extract_skills(user_paragraph)
 print("User's extracted skills are:", user_skills)
 
