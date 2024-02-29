@@ -1,50 +1,61 @@
-import nltk
-import pandas as pd
 import spacy
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, precision_score, recall_score
-from sklearn.model_selection import train_test_split
+import pandas as pd
+from spacy.matcher import PhraseMatcher
 
-# Download the stopwords from NLTK
-nltk.download('stopwords')
-nltk.download('punkt')
-
-
-# Load the spaCy English model
+#spaCy English model
 nlp = spacy.load("en_core_web_sm")
 
-# Define the clean_text function for text cleaning
-def clean_text(text):
-    # Your cleaning logic here
-    return text
+skill_df = pd.read_csv("/content/drive/MyDrive/dataset_grad/first_trans_try.csv")
+skill_keywords = skill_df["Skills"].astype(str).str.lower().tolist()
+ignore_words = set(["me", "and", "or", "i", "myself", "experience", "excellent", "skill", "strong", "good", "be", "using","use", "skills"])
+matcher = PhraseMatcher(nlp.vocab, attr="LOWER")
+patterns = [nlp.make_doc(text) for text in skill_keywords if text not in ignore_words]
+matcher.add("SKILL_PATTERNS", patterns)
 
-# Define the remove_stopwords function
-def remove_stopwords(text):
-    stop_words = set(stopwords.words('english'))
-    tokens = word_tokenize(text)
-    filtered_text = ' '.join([word for word in tokens if word.lower() not in stop_words])
-    return filtered_text
 
-# Extract skills from a user's paragraph
-def extract_skills(text):
+def extract_entities_skills_and_bigrams(text):
     doc = nlp(text)
-    #need to put skill dictionary insted of this list
-    #the skill dictionary that we created
-    skill_df = pd.read_csv('skill2vec_50K.csv')
-    skill_keywords = pd.Series(skill_df.values.ravel('F')).unique().tolist()
-    skills = []
+    probable_skills = set()
 
+   #phrasematcher 3shan l multi word skill
+    matches = matcher(doc)
+    for match_id, start, end in matches:
+        span = doc[start:end]
+        span_text = span.text.lower().replace(" ", "_").replace(".", "_")
+        probable_skills.add(span_text)
+
+    # NER and ngrams
+    for ent in doc.ents:
+      ent_text = ent.text.lower().replace(" ", "_").replace(".", "_")
+      if ent_text not in ignore_words and ent_text in skill_keywords:
+        probable_skills.add(ent_text)
+    for token1, token2 in zip(doc[:-1], doc[1:]):
+        bigram_text = f"{token1.text.lower()} {token2.text.lower()}"
+        bigram_key = bigram_text.replace(" ", "_").replace(".", "_")
+        if bigram_text in skill_keywords and bigram_key not in ignore_words:
+            probable_skills.add(bigram_key)
+
+    # Use PoS tagging to identify nouns and verbs as probable skills
     for token in doc:
-        if token.text.lower() in skill_keywords or "skill" in token.text.lower() or token.ent_type_ == "SKILL":
-            if token.text.lower() not in ["me", "and", "or", "i", "myself","strong","experience","Excellent"] and len(token.text) > 1:
-                skills.append(token.text)
+        if token.pos_ in ['NOUN', 'VERB']:
+            token_text = token.lemma_.lower().replace(" ", "_").replace(".", "_")
+            if token_text not in ignore_words and token_text in skill_keywords and token_text not in probable_skills:
+                probable_skills.append(token_text)
+    
+    #n filter l hagat ele tl3t ba 
+    final_skills = set()
+    for skill in probable_skills:
+      if any(skill in multi_word_skill for multi_word_skill in probable_skills if multi_word_skill != skill):
+        continue #y3ny lw l'a l skill de mwgoda f multi word yskipha w myhothash tany
+      final_skills.add(skill)
+    return list(final_skills)
 
-    unique_skills = list(set(skills))
-    return '|'.join(unique_skills)
 
-user_paragraph = "I have experience in Python and Java, with strong skills in machine learning. Excellent communication and teamwork skills."
-user_skills = extract_skills(user_paragraph)
-print ("Users's extracted skills are: ",user_skills)
+
+user_paragraph = "My skills are java, python, C++, machine learning and node js"
+probable_skills = extract_entities_skills_and_bigrams(user_paragraph)
+
+print ("Probable Skills:", probable_skills)
+
+
+
