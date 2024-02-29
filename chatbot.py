@@ -90,6 +90,7 @@ while True:
         print("Chatbot: Goodbye!")
         break
 
+
     # Tokenize user input
     input_ids = tokenizer.encode("User: " + user_input, return_tensors="pt")
 
