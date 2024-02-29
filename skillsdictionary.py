@@ -3,7 +3,7 @@ from nltk.stem import WordNetLemmatizer
 from nltk.corpus import stopwords
 import re
 
-df = pd.read_csv('F:\shithole\4th year-1st semester\Graduation project\skill2vec_10K.csv')
+df = pd.read_csv('skill2vec_10K.csv')
 
 #initialize NLP tools 
 lemmatizer = WordNetLemmatizer()
