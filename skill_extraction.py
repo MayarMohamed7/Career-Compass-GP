@@ -2,10 +2,9 @@ import spacy
 import pandas as pd
 from spacy.matcher import PhraseMatcher
 
-# Load the spaCy English model
+#spaCy English model
 nlp = spacy.load("en_core_web_sm")
 
-# Load the skill dictionary (Adjust the path as necessary)
 skill_df = pd.read_csv("/content/drive/MyDrive/dataset_grad/first_trans_try.csv")
 skill_keywords = skill_df["Skills"].astype(str).str.lower().tolist()
 ignore_words = set(["me", "and", "or", "i", "myself", "experience", "excellent", "skill", "strong", "good", "be", "using","use", "skills"])
@@ -36,7 +35,7 @@ def extract_entities_skills_and_bigrams(text):
         if bigram_text in skill_keywords and bigram_key not in ignore_words:
             probable_skills.add(bigram_key)
 
-       # Use PoS tagging to identify nouns and verbs as probable skills
+    # Use PoS tagging to identify nouns and verbs as probable skills
     for token in doc:
         if token.pos_ in ['NOUN', 'VERB']:
             token_text = token.lemma_.lower().replace(" ", "_").replace(".", "_")
@@ -47,13 +46,12 @@ def extract_entities_skills_and_bigrams(text):
     final_skills = set()
     for skill in probable_skills:
       if any(skill in multi_word_skill for multi_word_skill in probable_skills if multi_word_skill != skill):
-        continue #y3ny lw l'a l skill de mwgoda f mukti word yskipha w myhothash tany
+        continue #y3ny lw l'a l skill de mwgoda f multi word yskipha w myhothash tany
       final_skills.add(skill)
     return list(final_skills)
 
 
 
-# Example usage
 user_paragraph = "My skills are java, python, C++, machine learning and node js"
 probable_skills = extract_entities_skills_and_bigrams(user_paragraph)
 
