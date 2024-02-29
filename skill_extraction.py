@@ -1,6 +1,6 @@
-import spacy
 import nltk
 import pandas as pd
+import spacy
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer
@@ -9,8 +9,9 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score
 from sklearn.model_selection import train_test_split
 
 # Download the stopwords from NLTK
-nltk.download('punkt')
 nltk.download('stopwords')
+nltk.download('punkt')
+
 
 # Load the spaCy English model
 nlp = spacy.load("en_core_web_sm")
