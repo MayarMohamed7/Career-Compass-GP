@@ -6,6 +6,7 @@ dataScrappingjob_data = pd.read_csv("/content/drive/MyDrive/dataset_grad/dataScr
 
 # Select relevant columns
 jobs = jobs[["Job Title", "Skills"]]
+
 dataScrappingjob_data = dataScrappingjob_data[["Job Title", "Skills"]]
 
 # Merge datasets based on "Job Title" using outer join
